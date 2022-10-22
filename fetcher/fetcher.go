@@ -26,9 +26,18 @@ type Fetcher struct {
 	rl        ratelimit.Limiter
 }
 
+// Config represents a configuration
+type Config struct {
+	Host       string
+	APIToken   string
+	RPS        int
+	StartRound uint64
+	Processor  ProcessorFunc
+}
+
 // New creates a new fetcher
-func New(host, apiToken string, rps int, startRound uint64, processor ProcessorFunc) (*Fetcher, error) {
-	client, err := indexer.MakeClient(host, apiToken)
+func New(conf Config) (*Fetcher, error) {
+	client, err := indexer.MakeClient(conf.Host, conf.APIToken)
 	if err != nil {
 		return nil, err
 	}
@@ -39,10 +48,10 @@ func New(host, apiToken string, rps int, startRound uint64, processor ProcessorF
 		client:    client,
 		ctx:       ctx,
 		cancel:    cancel,
-		currRound: startRound,
+		currRound: conf.StartRound,
 		queue:     make(chan *models.Block, blockQueueSize),
-		processor: processor,
-		rl:        ratelimit.New(rps),
+		processor: conf.Processor,
+		rl:        ratelimit.New(conf.RPS),
 	}, nil
 }
 
@@ -56,7 +65,7 @@ func (f *Fetcher) fetchLoop() {
 		default:
 		}
 
-    f.rl.Take()
+		f.rl.Take()
 		nextRound := f.currRound + 1
 		// TODO: handle retry
 		block, err := f.client.LookupBlock(nextRound).Do(f.ctx)

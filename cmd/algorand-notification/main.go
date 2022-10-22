@@ -7,6 +7,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/synycboom/algorand-notification/fetcher"
 )
 
 var (
@@ -27,10 +29,10 @@ var daemonCmd = &cobra.Command{
 	Short: "run algorand-notification daemon",
 	Long:  "run algorand-notification daemon. Serve websocket.",
 	Run: func(cmd *cobra.Command, args []string) {
-    if err := runDaemon(); err != nil {
-      log.Error().Err(err).Msg("daemon: unexpected error")
-      os.Exit(1)
-    }
+		if err := runDaemon(); err != nil {
+			log.Error().Err(err).Msg("daemon: unexpected error")
+			os.Exit(1)
+		}
 	},
 }
 
@@ -49,22 +51,37 @@ func main() {
 
 func initConfig() {
 	if configFile != "" {
-    viper.SetConfigType("yaml")
+		viper.SetConfigType("yaml")
 		viper.SetConfigFile(configFile)
 
 		if err := viper.ReadInConfig(); err != nil {
-      log.Error().Err(err).Msg("initConfig: invalid configfile")
+			log.Error().Err(err).Msg("initConfig: invalid configfile")
 		} else {
-      log.Info().Msgf("initConfig: using config file %s", viper.ConfigFileUsed())
-    }
+			log.Info().Msgf("initConfig: using config file %s", viper.ConfigFileUsed())
+		}
 	}
 }
 
 func runDaemon() error {
-  log.Info().Msgf("indexer_host: %s", viper.GetString("INDEXER_HOST"))
-  log.Info().Msgf("port: %s", viper.GetString("PORT"))
-  log.Info().Msgf("start_round: %s", viper.GetUint64("START_ROUND"))
-  log.Info().Msgf("fetcher_rps: %s", viper.GetInt("FETCHER_RPS"))
+	log.Info().Msgf("indexer_host: %s", viper.GetString("INDEXER_HOST"))
+	log.Info().Msgf("port: %s", viper.GetString("PORT"))
+	log.Info().Msgf("start_round: %s", viper.GetUint64("START_ROUND"))
+	log.Info().Msgf("fetcher_rps: %s", viper.GetInt("FETCHER_RPS"))
 
-  return nil
+	f, err := fetcher.New(fetcher.Config{
+		Host:       viper.GetString("INDEXER_HOST"),
+		APIToken:   viper.GetString("INDEXER_API_TOKEN"),
+		RPS:        viper.GetInt("FETCHER_RPS"),
+		StartRound: viper.GetUint64("START_ROUND"),
+		// Processor: func(b *models.Block) {},
+	})
+  if err != nil {
+    return err
+  }
+
+	f.Start()
+  defer f.Stop()
+
+	return nil
 }
+
