@@ -73,7 +73,7 @@ func run() error {
     }
   }()
 
-	log.Info().Msg("server is running on port " + port)
+  log.Info().Msg("server: running on port " + port)
 	http.Handle("/metrics", promhttp.Handler())
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		return err

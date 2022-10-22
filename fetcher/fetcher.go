@@ -70,7 +70,7 @@ func (f *Fetcher) fetchLoop() {
 		// TODO: handle retry
 		block, err := f.client.LookupBlock(nextRound).Do(f.ctx)
 		if err != nil {
-			log.Error().Err(err).Msg("Fetcher: got an error while looking up a block")
+			log.Error().Err(err).Msg("fetcher: got an error while looking up a block")
 			continue
 		}
 
