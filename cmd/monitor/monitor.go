@@ -35,8 +35,8 @@ var (
 func init() {
 	flags := Command.Flags()
 	flags.StringVarP(&configFile, "config", "c", "", "file path to configuration file (monitor.yml)")
+
 	Command.MarkFlagRequired("config")
-	cobra.OnInitialize(initConfig)
 }
 
 // initConfig initialize configuration
@@ -45,14 +45,16 @@ func initConfig() {
 	viper.SetConfigFile(configFile)
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Error().Err(err).Msg("initConfig: invalid configfile")
+		log.Error().Err(err).Msg("server: invalid configfile")
 		os.Exit(1)
 	} else {
-		log.Info().Msgf("initConfig: using config file %s", viper.ConfigFileUsed())
+		log.Info().Msgf("server: using config file %s", viper.ConfigFileUsed())
 	}
 }
 
 func run() error {
+  initConfig()
+
 	indexerHost := viper.GetString("INDEXER_HOST")
 	indexerAPIToken := viper.GetString("INDEXER_API_TOKEN")
 	fetcherRPS := viper.GetInt("FETCHER_RPS")

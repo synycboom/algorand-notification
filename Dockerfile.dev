@@ -1,0 +1,9 @@
+FROM golang:1.18-alpine
+
+ENV CGO_ENABLED=0
+
+RUN apk add --no-cache git curl && \
+  go install github.com/go-delve/delve/cmd/dlv@latest && \
+  go install github.com/cespare/reflex@latest && \
+  go install github.com/mitranim/gow@latest
+

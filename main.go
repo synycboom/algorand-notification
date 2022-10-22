@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/synycboom/algorand-notification/cmd/monitor"
+	"github.com/synycboom/algorand-notification/cmd/server"
 )
 
 var rootCmd = &cobra.Command{
@@ -22,6 +23,7 @@ var rootCmd = &cobra.Command{
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	rootCmd.AddCommand(monitor.Command)
+	rootCmd.AddCommand(server.Command)
 	if err := rootCmd.Execute(); err != nil {
 		log.Error().Err(err).Msg("main: unexpected error")
 		os.Exit(1)

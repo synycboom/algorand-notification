@@ -1,5 +1,35 @@
 version: "3.5"
 services:
+  monitor:
+    container_name: algorand-notification-monitor
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./:/src/go
+      - $GOPATH/pkg/mod:/go/pkg/mod
+    working_dir: /src/go
+    command: reflex -c /src/go/reflex/monitor.conf
+    depends_on:
+      - redis
+
+  server:
+    container_name: algorand-notification-server
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/src/go
+      - $GOPATH/pkg/mod:/go/pkg/mod
+    working_dir: /src/go
+    command: reflex -c /src/go/reflex/server.conf
+    depends_on:
+      - redis
+
   redis:
     image: redis:6.2.7-alpine
     container_name: algorand-notification-redis

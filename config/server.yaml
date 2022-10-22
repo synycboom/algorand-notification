@@ -1,0 +1,4 @@
+port: "8080"
+redis_host: "redis:6379"
+redis_password: "password"
+new_block_channel: "algorand-notification-new-block"
