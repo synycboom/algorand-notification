@@ -3,3 +3,7 @@ indexer_api_token: ""
 port: "8080"
 start_round: 0
 fetcher_rps: 5
+redis_host: localhost:6379
+redis_password: password
+publisher_timeout: 3s
+new_block_channel: algorand-notification-new-block
