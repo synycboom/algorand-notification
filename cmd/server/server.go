@@ -35,21 +35,14 @@ func init() {
 	Command.MarkFlagRequired("config")
 }
 
-// initConfig initialize configuration
-func initConfig() {
+func run() error {
 	viper.SetConfigType("yaml")
 	viper.SetConfigFile(configFile)
-
 	if err := viper.ReadInConfig(); err != nil {
-		log.Error().Err(err).Msg("server: invalid configfile")
-		os.Exit(1)
-	} else {
-		log.Info().Msgf("server: using config file %s", viper.ConfigFileUsed())
+    return err
 	}
-}
 
-func run() error {
-	initConfig()
+  log.Info().Msgf("server: using config file %s", viper.ConfigFileUsed())
 
 	port := viper.GetString("PORT")
 	redisHost := viper.GetString("REDIS_HOST")
