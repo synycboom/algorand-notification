@@ -1,8 +1,11 @@
 package main
 
 import (
+	"net/http"
 	"os"
 
+	"github.com/algorand/go-algorand-sdk/client/v2/common/models"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -63,25 +66,33 @@ func initConfig() {
 }
 
 func runDaemon() error {
-	log.Info().Msgf("indexer_host: %s", viper.GetString("INDEXER_HOST"))
-	log.Info().Msgf("port: %s", viper.GetString("PORT"))
-	log.Info().Msgf("start_round: %s", viper.GetUint64("START_ROUND"))
-	log.Info().Msgf("fetcher_rps: %s", viper.GetInt("FETCHER_RPS"))
+	indexerHost := viper.GetString("INDEXER_HOST")
+	indexerAPIToken := viper.GetString("INDEXER_API_TOKEN")
+	fetcherRPS := viper.GetInt("FETCHER_RPS")
+	startRound := viper.GetUint64("START_ROUND")
+	port := viper.GetString("PORT")
 
 	f, err := fetcher.New(fetcher.Config{
-		Host:       viper.GetString("INDEXER_HOST"),
-		APIToken:   viper.GetString("INDEXER_API_TOKEN"),
-		RPS:        viper.GetInt("FETCHER_RPS"),
-		StartRound: viper.GetUint64("START_ROUND"),
-		// Processor: func(b *models.Block) {},
+		Host:       indexerHost,
+		APIToken:   indexerAPIToken,
+		RPS:        fetcherRPS,
+		StartRound: startRound,
+		Processor: func(b *models.Block) {
+      log.Info().Msgf("%v", b.Round)
+    },
 	})
-  if err != nil {
-    return err
-  }
+	if err != nil {
+		return err
+	}
 
 	f.Start()
-  defer f.Stop()
+	defer f.Stop()
+
+	log.Info().Msg("daemon is running on port " + port)
+	http.Handle("/metrics", promhttp.Handler())
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		return err
+	}
 
 	return nil
 }
-
