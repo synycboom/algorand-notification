@@ -53,7 +53,7 @@ func initConfig() {
 }
 
 func run() error {
-  initConfig()
+	initConfig()
 
 	indexerHost := viper.GetString("INDEXER_HOST")
 	indexerAPIToken := viper.GetString("INDEXER_API_TOKEN")
@@ -79,17 +79,17 @@ func run() error {
 		RPS:        fetcherRPS,
 		StartRound: startRound,
 		Processor: func(b *models.Block) {
-      ctx, cancel := context.WithTimeout(context.Background(), publishTimeout)
-      defer cancel()
+			ctx, cancel := context.WithTimeout(context.Background(), publishTimeout)
+			defer cancel()
 
-      message, err := json.Marshal(b)
-      if err != nil {
-        log.Error().Err(err).Msg("monitor: failed to marshal json")
-      }
+			message, err := json.Marshal(b)
+			if err != nil {
+				log.Error().Err(err).Msg("monitor: failed to marshal json")
+			}
 
-      if err := p.Publish(ctx, message); err != nil {
-        log.Error().Err(err).Msg("monitor: failed to publish a block")
-      }
+			if err := p.Publish(ctx, message); err != nil {
+				log.Error().Err(err).Msg("monitor: failed to publish a block")
+			}
 		},
 	})
 	if err != nil {
@@ -99,7 +99,7 @@ func run() error {
 	f.Start()
 	defer f.Stop()
 
-  log.Info().Msg("monitor: running on port " + port)
+	log.Info().Msg("monitor: running on port " + port)
 	http.Handle("/metrics", promhttp.Handler())
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		return err

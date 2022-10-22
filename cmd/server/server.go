@@ -49,7 +49,7 @@ func initConfig() {
 }
 
 func run() error {
-  initConfig()
+	initConfig()
 
 	port := viper.GetString("PORT")
 	redisHost := viper.GetString("REDIS_HOST")
@@ -59,21 +59,21 @@ func run() error {
 		RedisHost:     redisHost,
 		RedisPassword: redisPassword,
 		Channel:       channel,
-    Processor: func(message []byte) {
-      log.Info().Msgf("%#v", string(message))
-    },
+		Processor: func(message []byte) {
+			log.Info().Msgf("%#v", string(message))
+		},
 	})
 	if err != nil {
 		return err
 	}
-  defer func() {
-    if err := s.Close(); err != nil {
-      log.Error().Err(err).Msg("server: unexpected error")
-      os.Exit(1)
-    }
-  }()
+	defer func() {
+		if err := s.Close(); err != nil {
+			log.Error().Err(err).Msg("server: unexpected error")
+			os.Exit(1)
+		}
+	}()
 
-  log.Info().Msg("server: running on port " + port)
+	log.Info().Msg("server: running on port " + port)
 	http.Handle("/metrics", promhttp.Handler())
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		return err
