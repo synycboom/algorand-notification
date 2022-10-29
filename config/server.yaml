@@ -1,4 +1,6 @@
 port: "8080"
+metrics_port: "9360"
+log_level: "debug"
 redis_host: "redis:6379"
 redis_password: "password"
 new_block_channel: "algorand-notification-new-block"
