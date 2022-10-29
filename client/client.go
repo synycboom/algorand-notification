@@ -349,14 +349,3 @@ func newErrorResponse(id, code int, message string) ([]byte, error) {
 	return bb, nil
 }
 
-func newUnsubscribeResponse(id int) ([]byte, error) {
-	bb, err := json.Marshal(Response{
-		ID:     id,
-		Result: nil,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return bb, nil
-}

@@ -4,7 +4,7 @@ services:
     container_name: algorand-notification-monitor
     build:
       context: .
-      dockerfile: ./Dockerfile.dev
+      dockerfile: ./build/Dockerfile.dev
     ports:
       - "8081:8081"
       - "9361:9361"
@@ -20,7 +20,7 @@ services:
     container_name: algorand-notification-server
     build:
       context: .
-      dockerfile: ./Dockerfile.dev
+      dockerfile: ./build/Dockerfile.dev
     ports:
       - "8080:8080"
       - "9360:9360"
