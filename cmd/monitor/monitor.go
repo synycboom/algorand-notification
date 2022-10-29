@@ -8,6 +8,7 @@ import (
 
 	"github.com/algorand/go-algorand-sdk/client/v2/common/models"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -43,10 +44,10 @@ func run() error {
 	viper.SetConfigType("yaml")
 	viper.SetConfigFile(configFile)
 	if err := viper.ReadInConfig(); err != nil {
-    return err
+		return err
 	}
 
-  log.Info().Msgf("server: using config file %s", viper.ConfigFileUsed())
+	log.Info().Msgf("server: using config file %s", viper.ConfigFileUsed())
 
 	indexerHost := viper.GetString("INDEXER_HOST")
 	indexerAPIToken := viper.GetString("INDEXER_API_TOKEN")
@@ -57,6 +58,11 @@ func run() error {
 	redisPassword := viper.GetString("REDIS_PASSWORD")
 	publishTimeout := viper.GetDuration("PUBLISHER_TIMEOUT")
 	channel := viper.GetString("NEW_BLOCK_CHANNEL")
+	logLevel, err := zerolog.ParseLevel(viper.GetString("LOG_LEVEL"))
+	if err == nil {
+		zerolog.SetGlobalLevel(logLevel)
+	}
+
 	p, err := publisher.NewRedis(publisher.RedisConfig{
 		RedisHost:     redisHost,
 		RedisPassword: redisPassword,
