@@ -121,7 +121,7 @@ func (h *Hub) Unsubscribe(e UnsubscribeEvent) {
 
 // SendEvent sends an event to clients
 func (h *Hub) SendEvent(e *event.Event) {
-  h.eventChan <- e
+	h.eventChan <- e
 }
 
 // Run runs worker to manage clients

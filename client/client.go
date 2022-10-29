@@ -21,10 +21,15 @@ const (
 )
 
 var (
-	validSubscriptionEvents = map[string]struct{}{
-		event.NewBlock: {},
-	}
+	validSubscriptionEvents map[string]struct{}
 )
+
+func init() {
+	validSubscriptionEvents = make(map[string]struct{})
+	for _, event := range event.AllEvents {
+		validSubscriptionEvents[event] = struct{}{}
+	}
+}
 
 // Request represents a websocket request payload
 type Request struct {
@@ -348,4 +353,3 @@ func newErrorResponse(id, code int, message string) ([]byte, error) {
 
 	return bb, nil
 }
-
