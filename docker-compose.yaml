@@ -7,6 +7,7 @@ services:
       dockerfile: ./Dockerfile.dev
     ports:
       - "8081:8081"
+      - "9361:9361"
     volumes:
       - ./:/src/go
       - $GOPATH/pkg/mod:/go/pkg/mod
@@ -22,6 +23,7 @@ services:
       dockerfile: ./Dockerfile.dev
     ports:
       - "8080:8080"
+      - "9360:9360"
     volumes:
       - ./:/src/go
       - $GOPATH/pkg/mod:/go/pkg/mod
