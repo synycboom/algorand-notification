@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/algorand/go-algorand-sdk/client/v2/common/models"
-	"github.com/algorand/go-algorand-sdk/types"
+	"github.com/iancoleman/strcase"
 )
 
 const (
@@ -61,56 +61,54 @@ func Parse(data []byte) ([]*Event, error) {
 		return nil, err
 	}
 
+	blockEvent := BlockEvent{
+		EventType: NewBlock,
+		Data:      block,
+	}
+
+	payload, err := json.Marshal(blockEvent)
+	if err != nil {
+		return nil, err
+	}
+
 	events = append(events, &Event{
 		Type:    NewBlock,
-		Payload: data,
+		Payload: convertKeys(payload),
 	})
 
 	for _, tx := range block.Transactions {
-		txData, err := json.Marshal(tx)
+		txEvent := NewTransactionEvent(tx)
+		payload, err := json.Marshal(txEvent)
 		if err != nil {
 			return nil, err
 		}
 
-		// TODO: filter unrelated transaction object (it does not omit empty), and rename event type in payload
-		switch tx.Type {
-		case string(types.PaymentTx):
-			events = append(events, &Event{
-				Type:    NewPaymentTx,
-				Payload: txData,
-			})
-		case string(types.KeyRegistrationTx):
-			events = append(events, &Event{
-				Type:    NewKeyRegistrationTx,
-				Payload: txData,
-			})
-		case string(types.AssetConfigTx):
-			events = append(events, &Event{
-				Type:    NewAssetConfigTx,
-				Payload: txData,
-			})
-		case string(types.AssetTransferTx):
-			events = append(events, &Event{
-				Type:    NewAssetTransferTx,
-				Payload: txData,
-			})
-		case string(types.AssetFreezeTx):
-			events = append(events, &Event{
-				Type:    NewAssetFreezeTx,
-				Payload: txData,
-			})
-		case string(types.ApplicationCallTx):
-			events = append(events, &Event{
-				Type:    NewApplicationCallTx,
-				Payload: txData,
-			})
-		case string(types.StateProofTx):
-			events = append(events, &Event{
-				Type:    NewStateProofTx,
-				Payload: txData,
-			})
-		}
+		events = append(events, &Event{
+			Type:    txEvent.EventType,
+			Payload: convertKeys(payload),
+		})
 	}
 
 	return events, nil
+}
+
+// convertKeys converts keys to camel case
+func convertKeys(data []byte) []byte {
+	m := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &m); err != nil {
+		return data
+	}
+
+	for k, v := range m {
+		camelized := strcase.ToLowerCamel(k)
+		delete(m, k)
+		m[camelized] = convertKeys(v)
+	}
+
+	bb, err := json.Marshal(m)
+	if err != nil {
+		return data
+	}
+
+	return bb
 }
