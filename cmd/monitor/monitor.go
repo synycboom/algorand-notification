@@ -37,7 +37,9 @@ func init() {
 	flags := Command.Flags()
 	flags.StringVarP(&configFile, "config", "c", "", "file path to configuration file (monitor.yml)")
 
-	Command.MarkFlagRequired("config")
+  if err := Command.MarkFlagRequired("config"); err != nil {
+    os.Exit(1)
+  }
 }
 
 func run() error {

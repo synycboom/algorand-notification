@@ -1,0 +1,39 @@
+run:
+  timeout: 5m
+  tests: false
+
+  linters:
+    disable-all: true
+    enable:
+      - staticcheck
+      - structcheck
+      - typecheck
+      - varcheck
+      - deadcode
+      - gosimple
+      - unused
+      - errcheck
+      - gofmt
+      - golint
+      - govet
+      - ineffassign
+      - misspell
+
+severity:
+  default-severity: error
+  rules:
+    - linters:
+      - staticcheck
+      - structcheck
+      - typecheck
+      - varcheck
+      - deadcode
+      - gosimple
+      - unused
+      - errcheck
+      - gofmt
+      - golint
+      - govet
+      - ineffassign
+      - misspell
+      severity: error

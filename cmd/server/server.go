@@ -23,7 +23,6 @@ import (
 
 var (
 	configFile string
-
 	Command = &cobra.Command{
 		Use:   "server",
 		Short: "run server",
@@ -41,7 +40,9 @@ func init() {
 	flags := Command.Flags()
 	flags.StringVarP(&configFile, "config", "c", "", "file path to configuration file (server.yml)")
 
-	Command.MarkFlagRequired("config")
+  if err := Command.MarkFlagRequired("config"); err != nil {
+    os.Exit(1)
+  }
 }
 
 func run() error {
