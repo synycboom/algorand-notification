@@ -6,6 +6,9 @@ This project consists of two services.
 - **Monitor Service**: the monitor service takes care of block polling and publishing. Redis is used for a messaing channel.
 - **Websocket Service**: the websocket service subscribes events from Redis and also provides the websocket api.
 
+## Video Demo
+TODO
+
 ## Architecture
 TODO
 
@@ -45,5 +48,11 @@ Both monitor and server commands accept configuration file via `--config` or `-c
 - `start_round`: is the start round for fetching blocks, and it should be set as latest as possible.
 - `fetcher_rps`: defines maximum RPS for fetching blocks.
 
-## Metrics
-The default metrics port for `Monitor Service` is `9361` and `9360` for `Websocket Service`.
+## Monitoring Dashboard
+The default metrics port for `Monitor Service` is `9361` and `9360` for `Websocket Service`. Data sources for Grafana are set in `dashboard/grafana_prometheus_datasource.docker.yaml`. Check that configurations for Prometheus source is correct or Grafana will not have the metrics.
+After running up docker-compose, Grafana is running on http://localhost:3000; default login (admin/admin).
+
+### View metrics on grafana
+- Go to Import and upload `dashboard/go_runtime_dashboard.json` and `dashboard/server_stats_dashboard.json`
+- `go_runtime_dashboard` dashboard shows general information of Golang runtime.
+- `server_stats_dashboard` dashbaord shows websocket connection related information.
