@@ -33,14 +33,14 @@ func init() {
 
 // Request represents a websocket request payload
 type Request struct {
-	ID     int      `json:"id"`
+	ID     uint64   `json:"id"`
 	Method string   `json:"method"`
 	Params []string `json:"params"`
 }
 
 // Response represents a websocket response payload
 type Response struct {
-	ID     int            `json:"id,omitempty"`
+	ID     uint64         `json:"id,omitempty"`
 	Error  *ResponseError `json:"error,omitempty"`
 	Result interface{}    `json:"result,omitempty"`
 }
@@ -339,7 +339,7 @@ func (c *Client) logger() zerolog.Logger {
 	}).Logger()
 }
 
-func newErrorResponse(id, code int, message string) ([]byte, error) {
+func newErrorResponse(id uint64, code int, message string) ([]byte, error) {
 	bb, err := json.Marshal(Response{
 		ID: id,
 		Error: &ResponseError{

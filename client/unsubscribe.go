@@ -6,20 +6,20 @@ import (
 )
 
 func (c *Client) validateUnSubscribing(req Request) error {
-  if req.Method != methodUnsubscribe {
-    return fmt.Errorf("invalid method")
-  }
+	if req.Method != methodUnsubscribe {
+		return fmt.Errorf("invalid method")
+	}
 
-  for _, event := range req.Params {
-    if _, ok := validSubscriptionEvents[event]; !ok {
-      return fmt.Errorf("invalid params")
-    }
-  }
+	for _, event := range req.Params {
+		if _, ok := validSubscriptionEvents[event]; !ok {
+			return fmt.Errorf("invalid params")
+		}
+	}
 
-  return nil
+	return nil
 }
 
-func newUnsubscribingResponse(id int) ([]byte, error) {
+func newUnsubscribingResponse(id uint64) ([]byte, error) {
 	bb, err := json.Marshal(Response{
 		ID:     id,
 		Result: nil,
@@ -30,4 +30,3 @@ func newUnsubscribingResponse(id int) ([]byte, error) {
 
 	return bb, nil
 }
-
