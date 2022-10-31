@@ -54,12 +54,17 @@ func run() error {
 	indexerHost := viper.GetString("INDEXER_HOST")
 	indexerAPIToken := viper.GetString("INDEXER_API_TOKEN")
 	fetcherRPS := viper.GetInt("FETCHER_RPS")
-	startRound := viper.GetUint64("START_ROUND")
 	metricsPort := viper.GetString("METRICS_PORT")
 	redisHost := viper.GetString("REDIS_HOST")
 	redisPassword := viper.GetString("REDIS_PASSWORD")
 	publishTimeout := viper.GetDuration("PUBLISHER_TIMEOUT")
 	channel := viper.GetString("NEW_BLOCK_CHANNEL")
+	var startRound *uint64 = nil
+	if viper.GetString("START_ROUND") != "latest" {
+		value := viper.GetUint64("START_ROUND")
+		startRound = &value
+	}
+
 	logLevel, err := zerolog.ParseLevel(viper.GetString("LOG_LEVEL"))
 	if err == nil {
 		zerolog.SetGlobalLevel(logLevel)

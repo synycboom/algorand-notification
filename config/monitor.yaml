@@ -1,7 +1,7 @@
 indexer_host: "https://algoindexer.algoexplorerapi.io"
 indexer_api_token: ""
 metrics_port: "9361"
-start_round: 24473279
+start_round: "latest"
 fetcher_rps: 5
 log_level: info
 redis_host: "redis:6379"

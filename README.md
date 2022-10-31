@@ -47,7 +47,7 @@ $ ./build/algorand-notification server --config ./config/server.yaml
 ## Configuration
 Both monitor and server commands accept configuration file via `--config` or `-c` flag. 
 - `redis_host` and `redis_password`: Redis host/password are set to support running in Docker, so if these services are running in standalone, they need to be set correctly.
-- `start_round`: is the start round for fetching blocks, and it should be set as latest as possible.
+- `start_round`: is the start round for fetching blocks, and it should be set as `"latest"` to start with the latest round.
 - `fetcher_rps`: defines maximum RPS for fetching blocks.
 
 ## API Usage

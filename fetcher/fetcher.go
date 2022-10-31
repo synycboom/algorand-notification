@@ -2,7 +2,9 @@ package fetcher
 
 import (
 	"context"
+	"time"
 
+	"github.com/algorand/go-algorand-sdk/client/v2/common"
 	"github.com/algorand/go-algorand-sdk/client/v2/common/models"
 	"github.com/algorand/go-algorand-sdk/client/v2/indexer"
 	"github.com/rs/zerolog/log"
@@ -31,7 +33,7 @@ type Config struct {
 	Host       string
 	APIToken   string
 	RPS        int
-	StartRound uint64
+	StartRound *uint64
 	Processor  ProcessorFunc
 }
 
@@ -43,12 +45,25 @@ func New(conf Config) (*Fetcher, error) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	currRound := conf.StartRound
+	if currRound == nil {
+		resp, err := client.HealthCheck().Do(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		currRound = &resp.Round
+	}
+
+	ctx, cancel = context.WithCancel(context.Background())
 
 	return &Fetcher{
 		client:    client,
 		ctx:       ctx,
 		cancel:    cancel,
-		currRound: conf.StartRound,
+		currRound: *currRound,
 		queue:     make(chan *models.Block, blockQueueSize),
 		processor: conf.Processor,
 		rl:        ratelimit.New(conf.RPS),
@@ -69,12 +84,20 @@ func (f *Fetcher) fetchLoop() {
 		nextRound := f.currRound + 1
 		block, err := f.client.LookupBlock(nextRound).Do(f.ctx)
 		if err != nil {
+			if _, ok := err.(common.NotFound); ok {
+				time.Sleep(time.Duration(1) * time.Second)
+				log.Info().Msg("fetcher: no new round")
+
+				continue
+			}
+
 			log.Error().Err(err).Msg("fetcher: got an error while looking up a block")
 			continue
 		}
 
 		f.queue <- &block
 		f.currRound = nextRound
+		log.Info().Msgf("fetcher: current round is %v", f.currRound)
 	}
 }
 
