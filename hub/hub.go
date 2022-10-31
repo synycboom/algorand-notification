@@ -4,10 +4,12 @@ import (
 	"sync"
 
 	"github.com/panjf2000/ants/v2"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/rs/zerolog/log"
 	"go.uber.org/atomic"
 
 	"github.com/synycboom/algorand-notification/event"
+	"github.com/synycboom/algorand-notification/metrics"
 )
 
 // Client represents a contract for websocket client
@@ -133,11 +135,13 @@ func (h *Hub) Run() {
 		case c := <-h.registerChan:
 			h.clients[c.ID()] = c
 			h.count.Inc()
+			metrics.ActiveConnections.Set(float64(h.count.Load()))
 
 			log.Info().Msgf("hub: %v active sessions", h.count.Load())
 		case c := <-h.unregisterChan:
 			delete(h.clients, c.ID())
 			h.count.Dec()
+			metrics.ActiveConnections.Set(float64(h.count.Load()))
 
 			log.Info().Msgf("hub: %v active sessions", h.count.Load())
 		case e := <-h.subscribeChan:
@@ -148,12 +152,16 @@ func (h *Hub) Run() {
 
 				h.subscriptions[evtType][e.ClientID] = struct{}{}
 			}
+
+			h.updateMetrics()
 		case e := <-h.unsubscribeChan:
 			for _, evtType := range e.Types {
 				delete(h.subscriptions[evtType], e.ClientID)
 				if len(h.subscriptions[evtType]) == 0 {
 					delete(h.subscriptions, evtType)
 				}
+
+				h.updateMetrics()
 			}
 		case event := <-h.eventChan:
 			var clients []Client
@@ -184,5 +192,18 @@ func (h *Hub) Run() {
 
 			wg.Wait()
 		}
+	}
+}
+
+func (h *Hub) updateMetrics() {
+	for _, evtType := range event.AllEvents {
+		metric, err := metrics.ActiveSubscriptions.GetMetricWith(
+			prometheus.Labels{"name": evtType},
+		)
+		if err != nil {
+			continue
+		}
+
+		metric.Set(float64(len(h.subscriptions[evtType])))
 	}
 }

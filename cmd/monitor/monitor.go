@@ -3,11 +3,11 @@ package monitor
 import (
 	"context"
 	"encoding/json"
-	"net/http"
 	"os"
 
 	"github.com/algorand/go-algorand-sdk/client/v2/common/models"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/labstack/echo-contrib/prometheus"
+	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -37,9 +37,9 @@ func init() {
 	flags := Command.Flags()
 	flags.StringVarP(&configFile, "config", "c", "", "file path to configuration file (monitor.yml)")
 
-  if err := Command.MarkFlagRequired("config"); err != nil {
-    os.Exit(1)
-  }
+	if err := Command.MarkFlagRequired("config"); err != nil {
+		os.Exit(1)
+	}
 }
 
 func run() error {
@@ -55,7 +55,7 @@ func run() error {
 	indexerAPIToken := viper.GetString("INDEXER_API_TOKEN")
 	fetcherRPS := viper.GetInt("FETCHER_RPS")
 	startRound := viper.GetUint64("START_ROUND")
-	port := viper.GetString("PORT")
+	metricsPort := viper.GetString("METRICS_PORT")
 	redisHost := viper.GetString("REDIS_HOST")
 	redisPassword := viper.GetString("REDIS_PASSWORD")
 	publishTimeout := viper.GetDuration("PUBLISHER_TIMEOUT")
@@ -100,9 +100,11 @@ func run() error {
 	f.Start()
 	defer f.Stop()
 
-	log.Info().Msg("monitor: running on port " + port)
-	http.Handle("/metrics", promhttp.Handler())
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	echoPrometheus := echo.New()
+	echoPrometheus.HideBanner = true
+	prom := prometheus.NewPrometheus("echo", nil)
+	prom.SetMetricsPath(echoPrometheus)
+	if err := echoPrometheus.Start(":" + metricsPort); err != nil {
 		return err
 	}
 

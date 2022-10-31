@@ -18,12 +18,13 @@ import (
 	"github.com/synycboom/algorand-notification/event"
 	"github.com/synycboom/algorand-notification/handler"
 	"github.com/synycboom/algorand-notification/hub"
+	"github.com/synycboom/algorand-notification/metrics"
 	"github.com/synycboom/algorand-notification/subscriber"
 )
 
 var (
 	configFile string
-	Command = &cobra.Command{
+	Command    = &cobra.Command{
 		Use:   "server",
 		Short: "run server",
 		Long:  "run server that subscribes events and accepts websocket connections.",
@@ -40,9 +41,9 @@ func init() {
 	flags := Command.Flags()
 	flags.StringVarP(&configFile, "config", "c", "", "file path to configuration file (server.yml)")
 
-  if err := Command.MarkFlagRequired("config"); err != nil {
-    os.Exit(1)
-  }
+	if err := Command.MarkFlagRequired("config"); err != nil {
+		os.Exit(1)
+	}
 }
 
 func run() error {
@@ -101,6 +102,8 @@ func run() error {
 		},
 		ClientFactory: f,
 	})
+
+	metrics.RegisterServerMetrics()
 
 	echoMainServer := echo.New()
 	echoMainServer.HideBanner = true
