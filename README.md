@@ -24,7 +24,7 @@ The docker-compose file will run those two services with Redis, Grafana and Prom
 $ docker-compose up
 ```
 
-## Standalone Usage
+## Running as a standalone service
 Those two services need to be run together. Only one instance of Monitor Service is needed. Websocket Service can be scaled to multiple instances in case it has to serve many websocket connections. Default configs for both monitor and websocket services are places in the `config` folder.
 
 ### Build
@@ -48,6 +48,61 @@ Both monitor and server commands accept configuration file via `--config` or `-c
 - `start_round`: is the start round for fetching blocks, and it should be set as latest as possible.
 - `fetcher_rps`: defines maximum RPS for fetching blocks.
 
+## API Usage
+This section provide websocket specification for event subscription.
+
+### General Websocket Information
+- The base endpoint is: ws://localhost:8080
+- The websocket server will send a ping frame every 3 minutes. If the websocket server does not receive a pong frame back from the connection within a 3 minute period, the connection will be disconnected.
+
+### Subscribing/Unsubscribing
+- The id used in the JSON payloads is an unsigned INT used as an identifier to uniquely identify the messages going back and forth.
+- Available events are
+  - "NEW_BLOCK"
+  - "NEW_PAYMENT_TX"
+  - "NEW_KEY_REGISTRATION_TX"
+  - "NEW_ASSET_CONFIG_TX"
+  - "NEW_ASSET_TRANSFER_TX"
+  - "NEW_ASSET_FREEZE_TX"
+  - "NEW_APPLICATION_CALL_TX"
+  - "NEW_STATE_PROOF_TX"
+
+#### Subscribe to events
+Request:
+```json
+{
+  "method": "SUBSCRIBE",
+  "params": [
+    "NEW_PAYMENT_TX",
+    "NEW_KEY_REGISTRATION_TX"
+  ],
+  "id": 1
+}
+```
+Response:
+```json
+{
+  "id": 1
+}
+```
+  
+#### Unsubscribe an event
+Request:
+```json
+{
+  "method": "SUBSCRIBE",
+  "params": [
+    "NEW_PAYMENT_TX"
+  ],
+  "id": 2
+}
+```
+Response:
+```json
+{
+  "id": 2
+}
+```
 ## Monitoring Dashboard
 The default metrics port for `Monitor Service` is `9361` and `9360` for `Websocket Service`. Data sources for Grafana are set in `dashboard/grafana_prometheus_datasource.docker.yaml`. Check that configurations for Prometheus source is correct or Grafana will not have the metrics.
 After running up docker-compose, Grafana is running on http://localhost:3000; default login (admin/admin).
