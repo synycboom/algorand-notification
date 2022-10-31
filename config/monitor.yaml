@@ -1,6 +1,5 @@
 indexer_host: "https://algoindexer.algoexplorerapi.io"
 indexer_api_token: ""
-port: "8081"
 metrics_port: "9361"
 start_round: 24473279
 fetcher_rps: 5

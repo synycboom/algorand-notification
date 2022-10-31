@@ -6,8 +6,7 @@ services:
       context: .
       dockerfile: ./build/Dockerfile.dev
     ports:
-      - "8081:8081"
-      - "9361:9361"
+      - 9361:9361
     volumes:
       - ./:/src/go
       - $GOPATH/pkg/mod:/go/pkg/mod
@@ -22,8 +21,8 @@ services:
       context: .
       dockerfile: ./build/Dockerfile.dev
     ports:
-      - "8080:8080"
-      - "9360:9360"
+      - 8080:8080
+      - 9360:9360
     volumes:
       - ./:/src/go
       - $GOPATH/pkg/mod:/go/pkg/mod
@@ -41,3 +40,27 @@ services:
     logging:
       driver: none
 
+  prometheus:
+    image: prom/prometheus
+    container_name: algorand-notification-prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./dashboard/prometheus.docker.yaml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+
+  grafana:
+    image: grafana/grafana:8.4.2
+    container_name: algorand-notification-grafana
+    ports:
+      - 3000:3000
+    environment:
+      GF_PATHS_CONFIG: /etc/grafana/ours.ini
+    volumes:
+      - ./dashboard/grafana.ini:/etc/grafana/ours.ini
+      - ./dashboard/grafana_prometheus_datasource.docker.yaml:/etc/grafana/provisioning/datasources/prometheus.yml
+      - grafana_data:/var/lib/grafana
+
+volumes:
+  grafana_data: {}
+  prometheus_data: {}
