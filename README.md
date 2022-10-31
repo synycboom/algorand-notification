@@ -10,7 +10,9 @@ This project consists of two services.
 TODO
 
 ## Architecture
-TODO
+<div width="100%">
+  <img alt="architecture" src="docs/architecture.png"/>
+</div>
 
 ## Requirements
 - Docker (development)
