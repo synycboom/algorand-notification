@@ -7,7 +7,7 @@ This project consists of two services.
 - **Websocket Service**: the websocket service subscribes events from Redis and also provides the websocket api.
 
 ## Video Demo
-TODO
+[![Alt text](https://img.youtube.com/vi/IBguJVTD3jE/0.jpg)](https://youtu.be/IBguJVTD3jE)
 
 ## Architecture
 <div width="100%">
@@ -27,7 +27,7 @@ $ docker-compose up
 ```
 
 ## Running as a standalone service
-Those two services need to be run together. Only one instance of Monitor Service is needed. Websocket Service can be scaled to multiple instances in case it has to serve many websocket connections. Default configs for both monitor and websocket services are places in the `config` folder.
+Those two services need to be run together. Only one instance of `Monitor Service` is needed. `Websocket Service` can be scaled to multiple instances in case it has to serve many websocket connections. Default configs for both monitor and websocket services are places in the `config` folder.
 
 ### Build
 ```shell
@@ -60,14 +60,14 @@ This section provide websocket specification for event subscription.
 ### Subscribing/Unsubscribing
 - The id used in the JSON payloads is an unsigned INT used as an identifier to uniquely identify the messages going back and forth.
 - Available events are
-  - "NEW_BLOCK"
-  - "NEW_PAYMENT_TX"
-  - "NEW_KEY_REGISTRATION_TX"
-  - "NEW_ASSET_CONFIG_TX"
-  - "NEW_ASSET_TRANSFER_TX"
-  - "NEW_ASSET_FREEZE_TX"
-  - "NEW_APPLICATION_CALL_TX"
-  - "NEW_STATE_PROOF_TX"
+  - `"NEW_BLOCK"`
+  - `"NEW_PAYMENT_TX"`
+  - `"NEW_KEY_REGISTRATION_TX"`
+  - `"NEW_ASSET_CONFIG_TX"`
+  - `"NEW_ASSET_TRANSFER_TX"`
+  - `"NEW_ASSET_FREEZE_TX"`
+  - `"NEW_APPLICATION_CALL_TX"`
+  - `"NEW_STATE_PROOF_TX"`
 
 #### Subscribe to events
 Request:
